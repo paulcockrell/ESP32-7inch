@@ -1,0 +1,9 @@
+profiles:
+  esp32:
+    notes: For the esp32 7inch display model
+    fqbn: esp32:esp32:esp32s3
+    platforms:
+      - platform: esp32:esp32 (2.0.3)
+        platform_index_url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+default_port: COM4
+default_fqbn: esp32:esp32:esp32s3
