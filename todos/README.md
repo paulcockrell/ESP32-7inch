@@ -1,7 +1,10 @@
-# ESP32-S3 test project
+# ESP32-S3 todos project
 
-Elecrow 7 inch project demonstrating basic usage with LovyanGFX library.
-It animates many circles along with displaying the frame rate.
+Elecrow 7 inch project demonstrating basic usage with LovyanGFX library
+
+The code is taken from [VolosProjects](https://github.com/VolosR/maTouch7/tree/main/7inch1024) and
+modified for the 800x480 screen. Demonstrates a complex dislpay in the form of
+a week todo planner.
 
 ## Install libraries
 

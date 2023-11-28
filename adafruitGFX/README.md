@@ -1,6 +1,6 @@
 # ESP32-S3 test project
 
-Simple project to get developing with the arduino cli
+Elecrow 7 inch project demonstrating basic usage with AdafruitGFX library
 
 ## Install libraries
 
