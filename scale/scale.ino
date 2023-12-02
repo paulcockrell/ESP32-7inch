@@ -2,7 +2,7 @@
 #include <Wire.h>
 #include "display.h"
 #include "bigFont.h"
-#include "midleFont.h"
+#include "middleFont.h"
 #include "smallFont.h"
 #include "valueFont.h"
 
@@ -73,8 +73,7 @@ void setup() {
   lcd.setBrightness(brightness[b]);
   lcd.setSwapBytes(1);
   lcd.fillScreen(TFT_BLACK);
-  //sprite.createSprite(400, 240);
-  sprite.createSprite(500, 500);
+  sprite.createSprite(400, 340);
 
   int co = 220;
   for (int i = 0; i < 13; i++) {
@@ -103,79 +102,145 @@ void setup() {
 
 void draw() {
   sprite.fillSprite(grays[11]);
-  sprite.drawBezier(54, 120, 80, 120, 2, 2, TFT_RED);
+
+  // Percent marker
+  sprite.fillRoundRect(
+    54,
+    119,
+    26,
+    4,
+    2,
+    TFT_RED);
+
+  // Bar chart
   for (int j = 0; j < 24; j++)
     for (int i = 0; i < PPgraph[j]; i++)
       sprite.fillRect(188 + (j * 6), 90 - (i * 4), 4, 3, grays[5]);
 
+  // Value border
   sprite.fillRect(180, 136, 100, 3, grays[7]);
   sprite.fillRect(186, 130, 3, 34, grays[7]);
 
-
+  // Percentage sign
   sprite.setTextDatum(4);
   sprite.loadFont(smallFont);
-  sprite.drawString("%", 60, 108);
+  sprite.setTextColor(grays[7], TFT_BLACK);
+  sprite.drawString("%", 60, 106);
   sprite.unloadFont();
 
-  sprite.loadFont(midleFont);
+  // Gauge dial
+
+  sprite.loadFont(middleFont);
 
   for (int i = 0; i < 120; i++) {
     a = angle + (i * 3);
+
     if (a > 359)
       a = (angle + (i * 3)) - 360;
 
+    // -- dot increments
     sprite.drawPixel(x[a], y[a], grays[6]);
-    sprite.setTextColor(grays[2], grays[8]);
+    sprite.setTextColor(grays[2], TFT_BLACK);
 
+    // -- small increment line
     if (i % 3 == 0)
-      sprite.drawBezier(x[a], y[a], x[a] - 6, y[a], 1, 1, grays[5], bck);
+      sprite.fillRoundRect(
+        x[a] - 5,
+        y[a],
+        6,
+        2,
+        1,
+        grays[5]);
 
+    // -- medium increment line
     if (i % 6 == 0)
-      sprite.drawBezier(x[a], y[a], x[a] - 18, y[a], 2, 2, grays[4], bck);
+      sprite.fillRoundRect(
+        x[a] - 17,
+        y[a] - 1,
+        18,
+        4,
+        2,
+        grays[4]);
+
+    // -- long increment line
     if (i % 12 == 0) {
-      sprite.drawBezier(x[a], y[a], x[a] - 30, y[a], 2, 2, grays[3], bck);
+      sprite.fillRoundRect(
+        x[a] - 29,
+        y[a] - 1,
+        30,
+        4,
+        2,
+        grays[1]);
+
+      // -- Draw rotary dial value
       sprite.drawString(String((i / 6) * 5), tx[a], ty[a], 2);
     }
   }
 
+  // Days of week
   sprite.setTextDatum(4);
   sprite.setTextColor(grays[2], grays[8]);
 
+  // -- background squares containing day of week
   for (int i = 0; i < 7; i++) {
-    sprite.fillRoundRect(186 + (i * 30), 2, 26, 26, 3, grays[8]);
-    sprite.drawString(String(dd[i]), 186 + ((i + 1) * 30) - 17, 17);
+    sprite.fillRoundRect(
+      186 + (i * 30),
+      1,
+      26,
+      34,
+      3,
+      grays[8]);
+
+    sprite.drawString(String(dd[i]), 186 + ((i + 1) * 30) - 25, 18);
   }
+
+  // Day of week arrow
+
   sprite.unloadFont();
-  sprite.drawBezier(199 + (rtc.getDayofWeek() * 30), 35, 199 + (rtc.getDayofWeek() * 30), 40, 1, 3, grays[3], bck);
+  sprite.fillTriangle(
+    199 + (rtc.getDayofWeek() * 30),
+    35,
+    199 + (rtc.getDayofWeek() * 30) + 5,
+    40,
+    (199 + (rtc.getDayofWeek() * 30)) - 5,
+    40,
+    grays[3]);
+
+  // Time
 
   sprite.setTextDatum(0);
   sprite.setTextColor(grays[0], bck);
   sprite.loadFont(bigFont);
-  sprite.drawString(rtc.getTime().substring(0, 5), 196, 150);
+  sprite.drawString(rtc.getTime().substring(0, 5), 196, 140);
   sprite.unloadFont();
+
+  // Date
 
   sprite.setTextDatum(0);
   sprite.setTextColor(grays[1], bck);
-  sprite.loadFont(midleFont);
-  sprite.drawString("November 28", 196, 104);  ////////////////////////date hard coded
+  sprite.loadFont(middleFont);
+  sprite.drawString("December 23", 196, 100);  ////////////////////////date hard coded
+
+  // On/Off percent text
+
   sprite.setTextDatum(4);
-  sprite.fillRect(0, 145, 50, 30, grays[9]);
+  sprite.fillRect(0, 145, 50, 35, grays[9]);
   sprite.setTextColor(grays[3], grays[9]);
-  sprite.drawString(OO[onOff], 25, 162);
+  sprite.drawString(OO[onOff], 12, 162);
 
-  sprite.unloadFont();
+  // sprite.unloadFont();
 
-  sprite.setTextDatum(4);
-  sprite.setTextColor(grays[1], bck);
-  sprite.loadFont(valueFont);
-  sprite.drawString(String((int)(value / 10.00)), 24, 124);
-  sprite.setTextColor(grays[3], bck);
-  sprite.drawString(secs, 362, 78);  /// /////////////////////////////////seconds
-  sprite.unloadFont();
+  // sprite.setTextDatum(4);
+  // sprite.setTextColor(grays[1], bck);
+  // sprite.loadFont(valueFont);
+  // sprite.drawString(String((int)(value / 10.00)), 24, 124);
+  // sprite.setTextColor(grays[3], bck);
+  // sprite.drawString(secs, 362, 78);  /// /////////////////////////////////seconds
+  // sprite.unloadFont();
 
-  sprite.setTextColor(grays[7], bck);
-  // sprite.drawString(String(x),150,50,4);
-  // sprite.drawString(String(y),250,50,4);
+  // sprite.setTextColor(grays[7], bck);
+  // sprite.drawString(String((int)x), 150, 50, 4);
+  // sprite.drawString(String((int)y), 250, 50, 4);
   //gfx->draw16bitBeRGBBitmap(40, 120, (uint16_t *)sprite.getPointer(), 400, 240);
   sprite.pushSprite(10, 10);
 
