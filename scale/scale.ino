@@ -54,7 +54,7 @@ ESP32Time rtc(0);
 #define IO_PWM_PIN 38
 
 int n = 0;
-int xt = 0, yt = 0;
+uint16_t xt = 0, yt = 0;
 
 unsigned short grays[13];
 #define red 0xD041
@@ -130,6 +130,8 @@ void draw() {
 
   // Gauge dial
 
+  sprite.setTextDatum(0);
+  sprite.setTextColor(grays[1], bck);
   sprite.loadFont(middleFont);
 
   for (int i = 0; i < 120; i++) {
@@ -140,7 +142,6 @@ void draw() {
 
     // -- dot increments
     sprite.drawPixel(x[a], y[a], grays[6]);
-    sprite.setTextColor(grays[2], TFT_BLACK);
 
     // -- small increment line
     if (i % 3 == 0)
@@ -165,9 +166,9 @@ void draw() {
     // -- long increment line
     if (i % 12 == 0) {
       sprite.fillRoundRect(
-        x[a] - 29,
+        x[a] - 24,
         y[a] - 1,
-        30,
+        25,
         4,
         2,
         grays[1]);
@@ -191,7 +192,7 @@ void draw() {
       3,
       grays[8]);
 
-    sprite.drawString(String(dd[i]), 186 + ((i + 1) * 30) - 25, 18);
+    sprite.drawString(String(dd[i]), 186 + ((i + 1) * 30) - 28, 18);
   }
 
   // Day of week arrow
@@ -226,65 +227,39 @@ void draw() {
   sprite.setTextDatum(4);
   sprite.fillRect(0, 145, 50, 35, grays[9]);
   sprite.setTextColor(grays[3], grays[9]);
-  sprite.drawString(OO[onOff], 12, 162);
+  sprite.drawString(OO[onOff], 12, 163);
+  sprite.unloadFont();
 
-  // sprite.unloadFont();
+  // Rotary dial percent value
+  sprite.setTextDatum(4);
+  sprite.setTextColor(grays[1], bck);
+  sprite.loadFont(valueFont);
+  sprite.drawString(String((int)(value / 10.00)), 0, 118);
 
-  // sprite.setTextDatum(4);
-  // sprite.setTextColor(grays[1], bck);
-  // sprite.loadFont(valueFont);
-  // sprite.drawString(String((int)(value / 10.00)), 24, 124);
-  // sprite.setTextColor(grays[3], bck);
-  // sprite.drawString(secs, 362, 78);  /// /////////////////////////////////seconds
-  // sprite.unloadFont();
+  // Seconds
+  sprite.setTextColor(grays[3], bck);
+  sprite.drawString(secs, 362, 78);  /// /////////////////////////////////seconds
+  sprite.unloadFont();
 
-  // sprite.setTextColor(grays[7], bck);
-  // sprite.drawString(String((int)x), 150, 50, 4);
-  // sprite.drawString(String((int)y), 250, 50, 4);
-  //gfx->draw16bitBeRGBBitmap(40, 120, (uint16_t *)sprite.getPointer(), 400, 240);
   sprite.pushSprite(10, 10);
 
   lcd.display();
 }
 
-// void readEncoder() {
-//   static int pos = 0;
-//   encoder.tick();
-
-//   int newPos = encoder.getPosition();
-//   if (pos != newPos) {
-//     if (newPos > pos)
-//       angle = angle + inc;
-//     if (newPos < pos)
-//       angle = angle - inc;
-
-//     pos = newPos;
-//   }
-//   if (angle < 0)
-//     angle = 359;
-
-//   if (angle >= 360)
-//     angle = 0;
-// }
-
 void loop() {
-  // readEncoder();
-
   for (int i = 0; i < 24; i++)
     PPgraph[i] = random(1, 12);
 
-  // if (digitalRead(BUTTON) == 0) {
-  //   if (deb == 0) {
-  //     deb = 1;
-  //     onOff = !onOff;
-  //     draw();
-  //   }
-  // } else deb = 0;
-
-  // if (read_touch(&xt, &yt) == 1) {
-  //   if (yt < 240) angle = angle - 3;
-  //   else angle = angle + 3;
-  // }
+  bool touched = lcd.getTouch(&xt, &yt);
+  if (touched) {
+    if (yt < 240) {
+      angle = angle - 3;
+      if (angle < 0) angle = 0;
+    } else {
+      angle = angle + 3;
+      if (angle > 360) angle = 360;
+    }
+  } 
 
   second1 = rtc.getSecond();
 
